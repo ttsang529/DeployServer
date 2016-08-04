@@ -69,11 +69,12 @@ cd $HOME
 curl -sS https://getcomposer.org/installer | php
 sudo mv composer.phar /usr/local/bin/composer
 
-sudo composer create-project --prefer-dist laravel/laravel $PJNAME
-export PATH="$PATH:$HOME/.composer/vendor/bin"
 cd /var/$LOCAL
 sudo composer global require "laravel/installer"
+export PATH="$PATH:$HOME/.composer/vendor/bin"
 #laravel new $PJNAME
+
+sudo composer create-project --prefer-dist laravel/laravel $PJNAME
 sudo chmod 777 -R /var/$LOCAL/$PJNAME/storage/logs/
 sudo chmod 777 -R /var/$LOCAL/$PJNAME/storage/framework/
 cd /var/$LOCAL/$PJNAME
