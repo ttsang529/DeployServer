@@ -8,7 +8,7 @@ CONFIG_FILE="/var/$LOCAL/$PJNAME/.env"
 NGINXFILE="/etc/nginx/sites-available/$PJNAME"
 
 sudo apt-get update
-sudo apt-get install nginx php5-fpm php5-cli php5-mcrypt git --yes
+sudo apt-get install nginx php5-fpm php5-cli php5-mcrypt php5-mysql git --yes
 sudo php5enmod mcrypt
 sudo fallocate -l 1G /swapfile
 sudo mkswap /swapfile
