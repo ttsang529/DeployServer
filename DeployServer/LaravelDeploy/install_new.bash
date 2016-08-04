@@ -54,7 +54,7 @@ sudo apt-get install -qq -y percona-server-server-5.6 percona-server-client-5.6
 sleep 5
 sudo service mysql restart
 sleep 5
-mysqladmin -u root -pubiqconn create $PJNAME
+mysqladmin -u root -p$MYSQLPASSWD create $PJNAME
 #end
 
 
@@ -81,7 +81,6 @@ cd /var/$LOCAL/$PJNAME
 
 #edit laravel environment file
 echo 'Create project database'
-mysqladmin -u root -p$MYSQLPASSWD create $PJNAME
 echo "Change laravel db env "
 DB='DB_DATABASE=homestead'
 USER='DB_USERNAME=homestead'
