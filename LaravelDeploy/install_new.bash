@@ -32,7 +32,7 @@ sed -e "s/$PORT_OLD_SECOND/$PORT_SET_SECOND/g" -i $NGINXFILE
 sed -e "s/$PORT_OLD_THIRD/$PORT_SET_THIRD/g" -i   $NGINXFILE
 sed -e "s/$PJNAME_OLD/$PJNAME_NEW/g" -i           $NGINXFILE
 
-sudo ln -s /etc/nginx/sites-available/$LOCAL /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/$PJNAME /etc/nginx/sites-enabled/$PJNAME
 #end of setting nginx setting
 
 
