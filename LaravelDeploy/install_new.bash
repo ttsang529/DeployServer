@@ -70,7 +70,7 @@ sudo apt-get install -y mongodb-org
 sudo apt-get install -y ca-certificates
 cp -a php.ini /etc/php/7.0/fpm/php.ini
 cp -a cli_php.ini /etc/php/7.0/cli/php.ini
-cp -a www.conf /etc/php/7.0/fpm/pool.d/www.conf:
+cp -a www.conf /etc/php/7.0/fpm/pool.d/www.conf
 sudo service php7.0-fpm restart
 
 #Start install percona mysql db
@@ -110,6 +110,7 @@ export PATH="$PATH:$HOME/.composer/vendor/bin"
 sudo composer create-project --prefer-dist laravel/laravel=5.3.* $PJNAME
 sudo chmod 777 -R /var/$LOCAL/$PJNAME/storage/logs/
 sudo chmod 777 -R /var/$LOCAL/$PJNAME/storage/framework/
+sudo chmod 777 -R /var/$LOCAL/$PJNAME/bootstrap/cache
 cd /var/$LOCAL/$PJNAME
 #end of setting nginx setting
 
@@ -127,8 +128,12 @@ sed -e "s/$USER/$USERNEW/g" -i $CONFIG_FILE
 sed -e "s/$PWD/$PWDNEW/g" -i   $CONFIG_FILE
 #end of edit environment
 
+cd /var/$LOCAL/$PJNAME/
+composer dump-autoload -o
+php artisan optimize
+
 echo 'Restart Service and laravel cache'
 sudo service nginx restart
 sudo service mysql restart
-sudo service php7-fpm restart
+sudo service php7.0-fpm restart
 
