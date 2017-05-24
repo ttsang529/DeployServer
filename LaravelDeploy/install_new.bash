@@ -88,19 +88,13 @@ sudo service php7.0-fpm restart
 
 #Start install percona mysql db
 echo 'Start install percona mysqldb'
-# Add the repo key
-apt-key adv --keyserver keys.gnupg.net --recv-keys 8507EFA5
-
-# Add repo
-for deb in deb deb-src; do echo "$deb http://repo.percona.com/apt `lsb_release -cs` main"; done | sudo tee -a /etc/apt/sources.list
-
-# Update
-apt-get update
-
 # Install percona 5.7
-DEBIAN_FRONTEND=noninteractive apt-get  install -y --allow-unauthenticated percona-server-server-5.7 percona-server-client-5.7
-echo "set up mysql pwd"
-mysql -u root -proot -e "use mysql; UPDATE user SET authentication_string=PASSWORD('$MYSQLPASSWD') WHERE User='root'; flush privileges;"
+cd mysql
+sudo dpkg -i percona-release_0.1-4.$(lsb_release -sc)_all.deb
+sudo apt-get update
+echo "percona-server-server-5.6 percona-server-server/root_password password $MYSQLPASSWD" | sudo debconf-set-selections
+echo "percona-server-server-5.6 percona-server-server/root_password_again password $MYSQLPASSWD" | sudo debconf-set-selections
+sudo apt-get install  -y percona-server-server-5.6 percona-server-client-5.6
 sleep 5
 cd ..
 sudo service mysql restart
