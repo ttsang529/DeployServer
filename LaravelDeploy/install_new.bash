@@ -7,14 +7,30 @@ MYSQLPASSWD="password"
 CONFIG_FILE="/var/$LOCAL/$PJNAME/.env"
 NGINXFILE="/etc/nginx/sites-available/$PJNAME"
 
-sudo apt-get update
-sudo apt-get install nginx php5-fpm php5-cli php5-mcrypt php5-mysql git --yes
-sudo php5enmod mcrypt
-sudo fallocate -l 1G /swapfile
+ntpdate -s ntp.ubuntu.com
+#implement swapfile for laravel need
+sudo fallocate -l 5G /swapfile
 sudo mkswap /swapfile
 sudo swapon /swapfile
+
+sudo apt-get update
+sudo apt-get install -y python-software-properties
+#install redis-server
+sudo add-apt-repository ppa:chris-lea/redis-server -y
+sudo apt-get update
+#install redis redis_version:3.2.8
+sudo apt-get install -y redis-server
+
+#install nginx stable 1.10.3
+add-apt-repository ppa:nginx/stable -y
+apt-get update
+sudo apt-get install -y nginx
+#remove unused nginx html folder
+rm -r /var/www/html
+
 #copy nginx setting and change port and Project name
 echo 'Start Setting up Nginx'
+cp -a  nginx.conf /etc/nginx/nginx.conf
 cp -a  deploy $NGINXFILE
 
 PORT_OLD_FIRST='listen 80 default_server;'
@@ -36,21 +52,38 @@ sudo ln -s /etc/nginx/sites-available/$PJNAME /etc/nginx/sites-enabled/$PJNAME
 #end of setting nginx setting
 
 
-#Start php setting
-echo 'Start Setting up php5'
-cp -a php.ini /etc/php5/fpm/php.ini
-cp -a www.conf /etc/php5/fpm/pool.d/www.conf
-#end onf php setting
+#install php7 and mongodb
+sudo add-apt-repository ppa:ondrej/php -y
+sudo apt-get update
+sudo apt-get install -y php7.0-fpm php7.0-cli php7.0-common php7.0-json libmcrypt-dev libcurl4-openssl-dev pkg-config libssl-dev libsslcommon2-dev libpng12-dev zlib1g-dev libsasl2-dev php7.0-mysql php7.0-mbstring php7.0-gd php7.0-xml php-pear php7.0-dev php-xml
+sudo apt-get install -y zip unzip php7.0-zip
+sudo pecl channel-update pecl.php.net
+sudo pecl install mongodb
+
+#install mongodb-server 3.2.13
+sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 'D68FA50FEA312927'
+echo "deb http://repo.mongodb.org/apt/ubuntu $(lsb_release -sc)/mongodb-org/3.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.list
+sudo apt-get update
+sudo apt-get install -y mongodb-org
+
+
+sudo apt-get install -y ca-certificates
+cp -a php.ini /etc/php/7.0/fpm/php.ini
+cp -a cli_php.ini /etc/php/7.0/cli/php.ini
+cp -a www.conf /etc/php/7.0/fpm/pool.d/www.conf:
+sudo service php7.0-fpm restart
 
 #Start install percona mysql db
 echo 'Start install percona mysqldb'
-sudo apt-key adv --keyserver keys.gnupg.net --recv-keys 1C4CBDCDCD2EFD2A
-sudo bash -c 'echo deb http://repo.percona.com/apt trusty main >> /etc/apt/sources.list'
-sudo bash -c 'echo deb-src http://repo.percona.com/apt trusty main >> /etc/apt/sources.list'
+#sudo apt-key adv --keyserver keys.gnupg.net --recv-keys 1C4CBDCDCD2EFD2A
+#sudo bash -c 'echo deb http://repo.percona.com/apt trusty main >> /etc/apt/sources.list'
+#sudo bash -c 'echo deb-src http://repo.percona.com/apt trusty main >> /etc/apt/sources.list'
+#wget https://repo.percona.com/apt/percona-release_0.1-4.$(lsb_release -sc)_all.deb
+dpkg -i percona-release_0.1-4.$(lsb_release -sc)_all.deb
 sudo apt-get update
-echo "percona-server-server-5.6 percona-server-server/root_password password $MYSQLPASSWD" | sudo debconf-set-selections
-echo "percona-server-server-5.6 percona-server-server/root_password_again password $MYSQLPASSWD" | sudo debconf-set-selections
-sudo apt-get install -qq -y percona-server-server-5.6 percona-server-client-5.6
+echo "percona-server-server-5.7 percona-server-server/root_password password $MYSQLPASSWD" | sudo debconf-set-selections
+echo "percona-server-server-5.7 percona-server-server/root_password_again password $MYSQLPASSWD" | sudo debconf-set-selections
+sudo apt-get install -qq -y percona-server-server-5.7
 sleep 5
 sudo service mysql restart
 sleep 5
@@ -74,7 +107,7 @@ sudo composer global require "laravel/installer"
 export PATH="$PATH:$HOME/.composer/vendor/bin"
 #laravel new $PJNAME
 
-sudo composer create-project --prefer-dist laravel/laravel $PJNAME
+sudo composer create-project --prefer-dist laravel/laravel=5.3.* $PJNAME
 sudo chmod 777 -R /var/$LOCAL/$PJNAME/storage/logs/
 sudo chmod 777 -R /var/$LOCAL/$PJNAME/storage/framework/
 cd /var/$LOCAL/$PJNAME
@@ -96,6 +129,6 @@ sed -e "s/$PWD/$PWDNEW/g" -i   $CONFIG_FILE
 
 echo 'Restart Service and laravel cache'
 sudo service nginx restart
-sudo service php5-fpm restart
 sudo service mysql restart
+sudo service php7-fpm restart
 
