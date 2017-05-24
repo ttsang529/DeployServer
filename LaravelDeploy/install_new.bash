@@ -91,8 +91,8 @@ echo 'Start install percona mysqldb'
 cd mysql
 dpkg -i percona-release_0.1-4.$(lsb_release -sc)_all.deb
 sudo apt-get update
-echo "percona-server-server-5.7 percona-server-server/root_password password $MYSQLPASSWD" | sudo debconf-set-selections
-echo "percona-server-server-5.7 percona-server-server/root_password_again password $MYSQLPASSWD" | sudo debconf-set-selections
+echo "percona-server-server-5.7 mysql-server/root_password password $MYSQLPASSWD" | sudo debconf-set-selections
+echo "percona-server-server-5.7 mysql-server/root_password_again password $MYSQLPASSWD" | sudo debconf-set-selections
 sudo apt-get install -qq -y percona-server-server-5.7
 sleep 5
 cd ..
