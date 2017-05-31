@@ -101,6 +101,26 @@ sleep 5
 mysqladmin -u root -p$MYSQLPASSWD create $PJNAME
 #end
 
+#install the mqtt server
+wget http://repo.mosquitto.org/debian/mosquitto-repo.gpg.key
+sudo apt-key add mosquitto-repo.gpg.key
+sudo apt-add-repository -y  ppa:mosquitto-dev/mosquitto-ppa
+sudo apt-get update
+sudo apt-get install -y mosquitto mosquitto-clients
+rm mosquitto-repo.gpg.key
+cp mqtt/mosquitto.conf /etc/mosquitto/
+cp mqtt/mqtt_pwd       /etc/mosquitto/
+#create mqtt SSL/TLS Client Server  Certs to Secure
+
+sudo mkdir /etc/mosquitto/ssl
+sudo chmod -R 777 /etc/mosquitto/ssl
+cp -a mqtt/ssl/generate-CA.sh /etc/mosquitto/ssl
+#cp -a mqtt/ssl/bcprov-ext-jdk15on-1.46.jar /etc/mosquitto/ssl
+#create ssl crt
+sudo bash /etc/mosquitto/ssl/generate-CA.sh mqtt
+#copy to cert and mqtt crt to moqtt path
+sudo cp /etc/mosquitto/ssl/ca.crt /etc/mosquitto/ca_certificates/
+sudo cp /etc/mosquitto/ssl/mqtt.crt  /etc/mosquitto/ssl/mqtt.key  /etc/mosquitto/certs/
 
 #Start install laravel
 echo 'Start install laravel'
