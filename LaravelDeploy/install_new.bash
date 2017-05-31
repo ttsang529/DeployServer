@@ -1,6 +1,6 @@
 #!/bin/bash
 set -x
-PJNAME="CRUD"
+PJNAME="IOT"
 PORT="2222"
 LOCAL="laravel"
 MYSQLPASSWD="password"
@@ -28,10 +28,19 @@ sudo apt-get install -y nginx
 #remove unused nginx html folder
 rm -r /var/www/html
 
+#nginx certificate
+echo 'Start Setting up Nginx'
+#create openssl self-sign certificate on /etc/nginx/ssl
+sudo mkdir /etc/nginx/ssl
+sudo openssl req -new -x509 -nodes -days 36500 -newkey rsa:2048\
+  -out /etc/nginx/ssl/nginx.crt \
+  -keyout /etc/nginx/ssl/nginx.key \
+  -subj "/C=TW/ST=Taiwan/L=Taipei/O=ubiqconn/CN=www.ubiqconn.com"
+
 #copy nginx setting and change port and Project name
 echo 'Start Setting up Nginx'
-cp -a  nginx.conf /etc/nginx/nginx.conf
-cp -a  deploy $NGINXFILE
+cp -a  nginx/nginx.conf /etc/nginx/nginx.conf
+cp -a  nginx/deploy $NGINXFILE
 
 PORT_OLD_FIRST='listen 80 default_server;'
 PORT_OLD_SECOND='listen \[\:\:\]\:80 default_server ipv6only=on;'
@@ -68,9 +77,9 @@ sudo apt-get install -y mongodb-org
 
 
 sudo apt-get install -y ca-certificates
-cp -a php.ini /etc/php/7.0/fpm/php.ini
-cp -a cli_php.ini /etc/php/7.0/cli/php.ini
-cp -a www.conf /etc/php/7.0/fpm/pool.d/www.conf
+cp -a php/php.ini /etc/php/7.0/fpm/php.ini
+cp -a php/cli_php.ini /etc/php/7.0/cli/php.ini
+cp -a php/www.conf /etc/php/7.0/fpm/pool.d/www.conf
 sudo service php7.0-fpm restart
 
 #Start install percona mysql db
@@ -79,12 +88,14 @@ echo 'Start install percona mysqldb'
 #sudo bash -c 'echo deb http://repo.percona.com/apt trusty main >> /etc/apt/sources.list'
 #sudo bash -c 'echo deb-src http://repo.percona.com/apt trusty main >> /etc/apt/sources.list'
 #wget https://repo.percona.com/apt/percona-release_0.1-4.$(lsb_release -sc)_all.deb
+cd mysql
 dpkg -i percona-release_0.1-4.$(lsb_release -sc)_all.deb
 sudo apt-get update
 echo "percona-server-server-5.7 percona-server-server/root_password password $MYSQLPASSWD" | sudo debconf-set-selections
 echo "percona-server-server-5.7 percona-server-server/root_password_again password $MYSQLPASSWD" | sudo debconf-set-selections
 sudo apt-get install -qq -y percona-server-server-5.7
 sleep 5
+cd ..
 sudo service mysql restart
 sleep 5
 mysqladmin -u root -p$MYSQLPASSWD create $PJNAME
