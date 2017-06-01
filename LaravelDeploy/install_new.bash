@@ -6,6 +6,9 @@ LOCAL="laravel"
 MYSQLPASSWD="password"
 CONFIG_FILE="/var/$LOCAL/$PJNAME/.env"
 NGINXFILE="/etc/nginx/sites-available/$PJNAME"
+PATH=`pwd`
+MQTTNAME="ubiqconn"
+MQTTPWD="ubiqconn"
 
 ntpdate -s ntp.ubuntu.com
 #implement swapfile for laravel need
@@ -42,15 +45,15 @@ echo 'Start Setting up Nginx'
 cp -a  nginx/nginx.conf /etc/nginx/nginx.conf
 cp -a  nginx/deploy $NGINXFILE
 
-PORT_OLD_FIRST='\#listen 80 default_server;'
-PORT_OLD_SECOND='\#listen \[\:\:\]\:80 default_server ipv6only=on;'
+PORT_OLD_FIRST='\listen 80 default_server;'
+PORT_OLD_SECOND='\listen \[\:\:\]\:80 default_server ipv6only=on;'
 PORT_OLD_FOUR='\#listen 80 ssl default_server;'
 PORT_OLD_FIVE='\#listen \[\:\:\]\:80 ssl default_server ipv6only=on;'
 # listen [::]:1111 default_server ipv6only=on;
 PORT_OLD_THIRD='server_name localhost;'
 PJNAME_OLD='root \/usr\/share\/nginx\/html;'
-PORT_SET_FIRST="\#listen $PORT default_server;"
-PORT_SET_SECOND="\#listen [::]:$PORT default_server ipv6only=on;"
+PORT_SET_FIRST="\listen $PORT default_server;"
+PORT_SET_SECOND="\listen [::]:$PORT default_server ipv6only=on;"
 PORT_SET_THIRD="server_name localhost:$PORT;"
 PORT_SET_FOUR="\#listen $PORT ssl default_server;"
 PORT_SET_FIVE="\#listen [::]:$PORT ssl default_server ipv6only=on;"
@@ -109,19 +112,26 @@ sudo apt-add-repository -y  ppa:mosquitto-dev/mosquitto-ppa
 sudo apt-get update
 sudo apt-get install -y mosquitto mosquitto-clients
 rm mosquitto-repo.gpg.key
-cp mqtt/mosquitto.conf /etc/mosquitto/
+#cp mqtt/mosquitto.conf /etc/mosquitto/
+cp mqtt/non_ssl_mosquitto.conf /etc/mosquitto/
 cp mqtt/mqtt_pwd       /etc/mosquitto/
 #create mqtt SSL/TLS Client Server  Certs to Secure
 
 sudo mkdir /etc/mosquitto/ssl
 sudo chmod -R 777 /etc/mosquitto/ssl
 cp -a mqtt/ssl/generate-CA.sh /etc/mosquitto/ssl
+cd /etc/mosquitto/ssl/
 #cp -a mqtt/ssl/bcprov-ext-jdk15on-1.46.jar /etc/mosquitto/ssl
 #create ssl crt
-sudo bash /etc/mosquitto/ssl/generate-CA.sh mqtt
+sudo bash generate-CA.sh mqtt
 #copy to cert and mqtt crt to moqtt path
 sudo cp /etc/mosquitto/ssl/ca.crt /etc/mosquitto/ca_certificates/
 sudo cp /etc/mosquitto/ssl/mqtt.crt  /etc/mosquitto/ssl/mqtt.key  /etc/mosquitto/certs/
+cd $PATH
+#create mqtt log
+sudo touch /var/log/mosquitto/mosquitto.log
+sudo chmod 777 /var/log/mosquitto/mosquitto.log
+service mosquitto restart
 
 #Start install laravel
 echo 'Start install laravel'
@@ -164,8 +174,10 @@ cd /var/$LOCAL/$PJNAME/
 composer dump-autoload -o
 php artisan optimize
 
+#reset mqtt username and password
+mosquitto_passwd -b '/etc/mosquitto/mqtt_pwd' $MQTTNAME $MQTTPWD
 echo 'Restart Service and laravel cache'
 sudo service nginx restart
 sudo service mysql restart
 sudo service php7.0-fpm restart
-
+sudo service mosquitto restart
