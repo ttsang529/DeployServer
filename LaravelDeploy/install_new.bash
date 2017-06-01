@@ -6,10 +6,9 @@ LOCAL="laravel"
 MYSQLPASSWD="password"
 CONFIG_FILE="/var/$LOCAL/$PJNAME/.env"
 NGINXFILE="/etc/nginx/sites-available/$PJNAME"
-PATH=`pwd`
+CURRENTPATH=`pwd`
 MQTTNAME="ubiqconn"
 MQTTPWD="ubiqconn"
-
 ntpdate -s ntp.ubuntu.com
 #implement swapfile for laravel need
 sudo fallocate -l 5G /swapfile
@@ -127,7 +126,7 @@ sudo bash generate-CA.sh mqtt
 #copy to cert and mqtt crt to moqtt path
 sudo cp /etc/mosquitto/ssl/ca.crt /etc/mosquitto/ca_certificates/
 sudo cp /etc/mosquitto/ssl/mqtt.crt  /etc/mosquitto/ssl/mqtt.key  /etc/mosquitto/certs/
-cd $PATH
+cd $CURRENTPATH
 #create mqtt log
 sudo touch /var/log/mosquitto/mosquitto.log
 sudo chmod 777 /var/log/mosquitto/mosquitto.log
