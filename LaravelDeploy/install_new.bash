@@ -44,15 +44,15 @@ echo 'Start Setting up Nginx'
 cp -a  nginx/nginx.conf /etc/nginx/nginx.conf
 cp -a  nginx/deploy $NGINXFILE
 
-PORT_OLD_FIRST='\listen 80 default_server;'
-PORT_OLD_SECOND='\listen \[\:\:\]\:80 default_server ipv6only=on;'
+PORT_OLD_FIRST='listen 80 default_server;'
+PORT_OLD_SECOND='listen \[\:\:\]\:80 default_server ipv6only=on;'
 PORT_OLD_FOUR='\#listen 80 ssl default_server;'
 PORT_OLD_FIVE='\#listen \[\:\:\]\:80 ssl default_server ipv6only=on;'
 # listen [::]:1111 default_server ipv6only=on;
 PORT_OLD_THIRD='server_name localhost;'
 PJNAME_OLD='root \/usr\/share\/nginx\/html;'
-PORT_SET_FIRST="\listen $PORT default_server;"
-PORT_SET_SECOND="\listen [::]:$PORT default_server ipv6only=on;"
+PORT_SET_FIRST="listen $PORT default_server;"
+PORT_SET_SECOND="listen [::]:$PORT default_server ipv6only=on;"
 PORT_SET_THIRD="server_name localhost:$PORT;"
 PORT_SET_FOUR="\#listen $PORT ssl default_server;"
 PORT_SET_FIVE="\#listen [::]:$PORT ssl default_server ipv6only=on;"
