@@ -154,7 +154,8 @@ sudo chmod 777 -R /var/$LOCAL/$PJNAME/storage/framework/
 sudo chmod 777 -R /var/$LOCAL/$PJNAME/bootstrap/cache
 cd /var/$LOCAL/$PJNAME
 #end of setting nginx setting
-
+#cp backup env to .env
+cp $CURRENTPATH/laravel/config/env /var/$LOCAL/$PJNAME/.env
 #edit laravel environment file
 echo 'Create project database'
 echo "Change laravel db env "
@@ -172,6 +173,41 @@ sed -e "s/$PWD/$PWDNEW/g" -i   $CONFIG_FILE
 cd /var/$LOCAL/$PJNAME/
 composer dump-autoload -o
 php artisan optimize
+composer require predis/predis
+composer require laracasts/flash
+composer require monolog/monolog
+composer require jenssegers/mongodb
+
+#copy config ,database to laravel
+cp $CURRENTPATH/laravel/config/* /var/$LOCAL/$PJNAME/config
+composer dump-autoload -o
+php artisan optimize
+
+cd /var/$LOCAL/$PJNAME/
+#curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
+#sudo apt-get install -y nodejs
+#install libnotify-bin to fix npm notify message
+sudo apt-get install -y libnotify-bin
+
+#copy packerage.json to project
+#cp $CURRENTPATH/nodejs/package.json /var/$LOCAL/$PJNAME/
+
+#npm update package.json
+#npm update
+#npm ls minimatch
+#npm update
+#install gulp command  line
+#sudo npm install --global gulp-cli
+
+#install supervisor
+sudo apt-get install -y supervisor
+
+#supervisor restart
+sudo service supervisor restart
+sleep 5
+
+#restart mongod becasue logrotate
+sudo service mongod restart
 
 #reset mqtt username and password
 mosquitto_passwd -b '/etc/mosquitto/mqtt_pwd' $MQTTNAME $MQTTPWD
