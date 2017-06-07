@@ -155,7 +155,7 @@ sudo chmod 777 -R /var/$LOCAL/$PJNAME/bootstrap/cache
 cd /var/$LOCAL/$PJNAME
 #end of setting nginx setting
 #cp backup env to .env
-cp $CURRENTPATH/laravel/config/env /var/$LOCAL/$PJNAME/.env
+cp $CURRENTPATH/laravel/env /var/$LOCAL/$PJNAME/.env
 #edit laravel environment file
 echo 'Create project database'
 echo "Change laravel db env "
@@ -181,6 +181,9 @@ composer require jenssegers/mongodb
 #copy config ,database to laravel
 cp $CURRENTPATH/laravel/config/* /var/$LOCAL/$PJNAME/config
 composer dump-autoload -o
+php artisan migrate:install
+php artisan migrate:refresh
+php artisan make:auth
 php artisan optimize
 
 cd /var/$LOCAL/$PJNAME/
