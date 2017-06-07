@@ -187,20 +187,17 @@ php artisan make:auth
 php artisan optimize
 
 cd /var/$LOCAL/$PJNAME/
-#curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
-#sudo apt-get install -y nodejs
+curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
+sudo apt-get install -y nodejs
 #install libnotify-bin to fix npm notify message
 sudo apt-get install -y libnotify-bin
 
-#copy packerage.json to project
-#cp $CURRENTPATH/nodejs/package.json /var/$LOCAL/$PJNAME/
 
-#npm update package.json
-#npm update
-#npm ls minimatch
-#npm update
+npm update
 #install gulp command  line
-#sudo npm install --global gulp-cli
+sudo npm install --global gulp-cli
+gulp --production
+
 
 #install supervisor
 sudo apt-get install -y supervisor
