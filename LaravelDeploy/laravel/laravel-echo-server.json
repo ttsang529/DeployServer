@@ -1,0 +1,21 @@
+{
+	"authHost": "http://192.168.82.170",
+	"authEndpoint": "/broadcasting/auth",
+	"database": "redis",
+	"databaseConfig": {
+		"redis": {            
+			"port": "6379",
+            		"host": "localhost"
+		},
+		"sqlite": {
+			"databasePath": "/database/laravel-echo-server.sqlite"
+		}
+	},
+	"devMode": false,
+	"host": "192.168.82.170",
+        "port": "6001",
+        "referrers": [],
+        "socketio": {},
+        "sslCertPath": "",
+        "sslKeyPath": ""
+}

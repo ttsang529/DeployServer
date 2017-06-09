@@ -16,8 +16,8 @@ return [
     |
     */
 
-    'driver' => env('SESSION_DRIVER', 'file'),
-
+    //'driver' => env('SESSION_DRIVER', 'file'),
+    'driver' => env('SESSION_DRIVER', 'memcached'),
     /*
     |--------------------------------------------------------------------------
     | Session Lifetime
@@ -30,6 +30,7 @@ return [
     */
 
     'lifetime' => 120,
+    //'lifetime' => 1,
 
     'expire_on_close' => false,
 
@@ -70,6 +71,7 @@ return [
     |
     */
 
+    //'connection' => null,
     'connection' => 'session',
 
     /*
@@ -84,19 +86,6 @@ return [
     */
 
     'table' => 'sessions',
-
-    /*
-    |--------------------------------------------------------------------------
-    | Session Cache Store
-    |--------------------------------------------------------------------------
-    |
-    | When using the "apc" or "memcached" session drivers, you may specify a
-    | cache store that should be used for these sessions. This value must
-    | correspond with one of the application's configured cache stores.
-    |
-    */
-
-    'store' => null,
 
     /*
     |--------------------------------------------------------------------------
@@ -148,7 +137,7 @@ return [
     |
     */
 
-    'domain' => env('SESSION_DOMAIN', null),
+    'domain' => null,
 
     /*
     |--------------------------------------------------------------------------
@@ -161,7 +150,7 @@ return [
     |
     */
 
-    'secure' => env('SESSION_SECURE_COOKIE', false),
+    'secure' => false,
 
     /*
     |--------------------------------------------------------------------------

@@ -27,8 +27,9 @@ sudo apt-get install -y redis-server
 add-apt-repository ppa:nginx/stable -y
 apt-get update
 sudo apt-get install -y nginx
-#remove unused nginx html folder
+#remove unused nginx html folder and install ssl cert
 rm -r /var/www/html
+
 
 #nginx certificate
 echo 'Start Setting up Nginx'
@@ -87,6 +88,17 @@ cp -a php/php.ini /etc/php/7.0/fpm/php.ini
 cp -a php/cli_php.ini /etc/php/7.0/cli/php.ini
 cp -a php/www.conf /etc/php/7.0/fpm/pool.d/www.conf
 sudo service php7.0-fpm restart
+
+
+#install php memcached
+sudo apt-get install -y memcached libmemcached-dev libmemcached11  php-memcached
+yes '' | pecl install -f memcached
+sudo service php7.0-fpm restart
+
+#install install beanstalkd for laravel queue
+sudo apt-get install beanstalkd
+sudo service beanstalkd start
+
 
 #Start install percona mysql db
 echo 'Start install percona mysqldb'
@@ -171,18 +183,22 @@ sed -e "s/$PWD/$PWDNEW/g" -i   $CONFIG_FILE
 #end of edit environment
 
 cd /var/$LOCAL/$PJNAME/
+#copy composer.json(laravel) package install
+cp $CURRENTPATH/laravel/composer.json  /var/$LOCAL/$PJNAME/
+composer install
 composer dump-autoload -o
 php artisan optimize
-composer require predis/predis
-composer require laracasts/flash
-composer require monolog/monolog
-composer require jenssegers/mongodb
 
 #copy config ,database to laravel
 cp $CURRENTPATH/laravel/config/* /var/$LOCAL/$PJNAME/config
 composer dump-autoload -o
+#create new key for encrytion
+php artisan key:generate
 php artisan migrate:install
 php artisan migrate:refresh
+#create failed-table for queue-job
+php artisan queue:failed-table
+php artisan migrate
 php artisan make:auth
 php artisan optimize
 
@@ -191,8 +207,8 @@ curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
 sudo apt-get install -y nodejs
 #install libnotify-bin to fix npm notify message
 sudo apt-get install -y libnotify-bin
-
-
+cp $CURRENTPATH/nodejs/package.json  /var/$LOCAL/$PJNAME/
+npm install
 npm update
 #install gulp command  line
 sudo npm install --global gulp-cli
@@ -204,7 +220,24 @@ sudo apt-get install -y supervisor
 
 #supervisor restart
 sudo service supervisor restart
+#change the path for execute path
+SUPERVISOR_WORKER='/etc/supervisor/conf.d/laravel-worker.conf'
+cp -a $CURRENTPATH/supervisor/laravel-worker.conf    $SUPERVISOR_WORKER
+WORK="command=php \/var\/www\/mgmt\/artisan"
+WORKNEW="command=php \/var\/$LOCAL\/$PJNAME\/artisan"
+sed -e "s/$WORK/$WORKNEW/g" -i   $SUPERVISOR_WORKER
+#create laravel worker
+mkdir -p /var/log/laravel
+chmod -R 777 /var/log/laravel
+touch /var/log/laravel/worker.log
+
 sleep 5
+sudo supervisorctl reread
+sudo supervisorctl update
+
+sleep 10
+sudo supervisorctl restart all
+
 
 #restart mongod becasue logrotate
 sudo service mongod restart
