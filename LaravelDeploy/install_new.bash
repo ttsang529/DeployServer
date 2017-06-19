@@ -186,6 +186,8 @@ cd /var/$LOCAL/$PJNAME/
 #copy composer.json(laravel) package install
 cp $CURRENTPATH/laravel/composer.json  /var/$LOCAL/$PJNAME/
 composer install
+composer update
+chmod 777 -R /var/$LOCAL/$PJNAME/storage/logs/
 composer dump-autoload -o
 php artisan optimize
 
